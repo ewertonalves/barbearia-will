@@ -1,75 +1,171 @@
-import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import React, { useState } from 'react';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-import { HelloWave } from '@/components/HelloWave';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import { ThemedText } from '@/components/ThemedText';
-import { ThemedView } from '@/components/ThemedView';
+interface Appointment {
+  id:           string;
+  clientName:   string;
+  service:      string;
+  value:        number;
+  professional: string;
+  time:         string;
+  completed:    boolean;
+  blocked?:     boolean;
+}
 
 export default function HomeScreen() {
+  const [appointments, setAppointments] = useState<Appointment[]>([
+    {
+      id: '1',
+      clientName: 'João Silva',
+      service: 'Corte de Cabelo',
+      value: 30,
+      professional: 'Willian',
+      time: '10:00',
+      completed: false,
+    },
+    {
+      id: '2',
+      clientName: 'Maria Souza',
+      service: 'Barba',
+      value: 20,
+      professional: 'Abner',
+      time: '11:00',
+      completed: false,
+    },
+    {
+      id: '3',
+      clientName: 'Carlos Lima',
+      service: 'Corte + Barba',
+      value: 45,
+      professional: 'Abner',
+      time: '12:00',
+      completed: false,
+    },
+  ]);
+
+  const handleComplete = (id: string) => {
+    setAppointments(appointments.map(a => a.id === id ? { ...a, completed: true } : a));
+  };
+
+  const handleCancel = (id: string) => {
+    setAppointments(appointments.filter(a => a.id !== id));
+  };
+
+  const handleBlock = (id: string) => {
+    setAppointments(appointments.map(a => a.id === id ? { ...a, blocked: !a.blocked } : a));
+  };
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+    <View style = {styles.container}>
+      <Text style = {styles.header}>PRÓXIMOS AGENDAMENTOS</Text>
+      <ScrollView style = {styles.list}>
+        {appointments.map(appointment => (
+          <View key = {appointment.id} style={[styles.card, appointment.completed && styles.completed, appointment.blocked && styles.blocked]}>
+            <View style = {styles.info}>
+              <Text style = {styles.client}>{appointment.clientName}</Text>
+              <Text style = {styles.detail}>{appointment.service} - {appointment.time}</Text>
+              <Text style = {styles.detail}>Profissional: {appointment.professional}</Text>
+              <Text style = {styles.detail}>Valor: R$ {appointment.value.toFixed(2)}</Text>
+            </View>
+            <View style = {styles.actions}>
+              {!appointment.completed && !appointment.blocked && (
+                <TouchableOpacity style = {styles.actionButton} onPress = {() => handleComplete(appointment.id)}>
+                  <Text style = {styles.actionText}>Finalizar</Text>
+                </TouchableOpacity>
+              )}
+              {!appointment.completed && !appointment.blocked && (
+                <TouchableOpacity style = {[styles.actionButton, { backgroundColor: '#e74c3c' }]} onPress = {() => handleCancel(appointment.id)}>
+                  <Text style = {styles.actionText}>Cancelar</Text>
+                </TouchableOpacity>
+              )}
+              {!appointment.completed && (
+                <TouchableOpacity style = {[styles.actionButton, { backgroundColor: '#888' }]} onPress = {() => handleBlock(appointment.id)}>
+                  <Text style = {styles.actionText}>{appointment.blocked ? 'Desbloquear' : 'Bloquear'}</Text>
+                </TouchableOpacity>
+              )}
+              {appointment.completed && <Text style = {styles.completedText}>Atendido</Text>}
+              {appointment.blocked && <Text style = {styles.blockedText}>Bloqueado</Text>}
+            </View>
+          </View>
+        ))}
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
+  container: {
+    flex: 1,
+    backgroundColor: '#23293A',
+    padding: 24,
+  },
+  header: {
+    color: '#fff',
+    fontSize: 22,
+    fontWeight: 'bold',
+    marginBottom: 18,
+    textAlign: 'center'
+  },
+  list: {
+    flex: 1,
+  },
+  card: {
+    backgroundColor: '#444',
+    borderRadius: 14,
+    padding: 18,
+    marginBottom: 16,
+    shadowColor: '#000',
+    shadowOpacity: 0.10,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+  completed: {
+    opacity: 0.5,
+  },
+  blocked: {
+    borderColor: '#e74c3c',
+    borderWidth: 2,
+  },
+  info: {
+    marginBottom: 10
+  },
+  client: {
+    color: '#10ace7',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+  detail: {
+    color: '#A0A4B8',
+    fontSize: 15,
+  },
+  actions: {
     flexDirection: 'row',
+    gap: 8,
+    flexWrap: 'wrap',
     alignItems: 'center',
-    gap: 8,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  actionButton: {
+    backgroundColor: '#10ace7',
+    borderRadius: 8,
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+    marginRight: 8,
+    marginTop: 4,
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  actionText: {
+    color: '#fff',
+    fontSize: 15,
+  },
+  completedText: {
+    color: '#2ecc71',
+    fontWeight: 'bold',
+    fontSize: 15,
+    marginLeft: 8,
+  },
+  blockedText: {
+    color: '#e74c3c',
+    fontWeight: 'bold',
+    fontSize: 15,
+    marginLeft: 8,
   },
 });
