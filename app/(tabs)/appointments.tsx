@@ -269,12 +269,19 @@ const SERVICES: Service[] = [
 
 const WEEKDAYS = ['DOM', 'SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SAB'];
 
+// Função utilitária para formatar data no padrão DD-MM-YYYY
+function formatDateBR(dateStr: string | null) {
+  if (!dateStr) return '';
+  const [yyyy, mm, dd] = dateStr.split('-');
+  return `${dd}`;
+}
+
 export default function AppointmentsScreen() {
-  // Inicializa o calendário no ano/mês do primeiro serviço para que marcadores coincidam
   const firstDate = SERVICES.length > 0 ? new Date(SERVICES[0].date) : new Date();
   const [selectedDate, setSelectedDate] = useState(new Date(firstDate.getFullYear(), firstDate.getMonth()));
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedServices, setSelectedServices] = useState<Service[]>([]);
+  const [selectedDay, setSelectedDay] = useState<string | null>(null);
 
   const getDaysInMonth = (date: Date) => {
     const year = date.getFullYear();
@@ -298,6 +305,7 @@ export default function AppointmentsScreen() {
     if (!date) return;
     const servicesForDay = SERVICES.filter(s => s.date === date);
     setSelectedServices(servicesForDay);
+    setSelectedDay(date);
     setModalVisible(true);
   };
 
@@ -374,7 +382,7 @@ export default function AppointmentsScreen() {
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Agendamentos do Dia</Text>
+              <Text style={styles.modalTitle}>Agendamentos do Dia - {formatDateBR(selectedDay)}</Text>
               <TouchableOpacity onPress={() => setModalVisible(false)}>
                 <Icon name="x" type="feather" color="#fff" size={24} />
               </TouchableOpacity>
@@ -384,7 +392,7 @@ export default function AppointmentsScreen() {
                 selectedServices.map(s => (
                   <View key={s.id} style={styles.serviceCard}>
                     <Text style={styles.serviceClient}>{s.clientName}</Text>
-                    <Text style={styles.serviceDetail}>{s.service}</Text>
+                    <Text style={styles.serviceDetail}>Serviço: {s.service}</Text>
                     <Text style={styles.serviceDetail}>Horário: {s.time}</Text>
                     <Text style={styles.serviceDetail}>Profissional: {s.professional}</Text>
                     <Text style={styles.serviceDetail}>Valor: R$ {s.value.toFixed(2)}</Text>
@@ -427,25 +435,114 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 16,
   },
-  monthButton: { padding: 8 },
-  monthText: { color: '#fff', fontSize: 18, fontWeight: 'bold' },
-  weekdaysContainer: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 8 },
-  weekdayText: { color: '#A0A4B8', fontSize: 12, width: '14.28%', textAlign: 'center' },
-  daysContainer: { flexDirection: 'row', flexWrap: 'wrap' },
-  dayCell: { width: '14.28%', aspectRatio: 1, margin: 2, justifyContent: 'center', alignItems: 'center' },
-  dayCellWithDate: { backgroundColor: '#31384A', borderRadius: 8 },
-  dayCellWithService: { backgroundColor: '#31384A' },
-  dayText: { color: '#A0A4B8', fontSize: 14 },
-  dayTextWithDate: { color: '#fff' },
-  dayTextWithService: { fontWeight: 'bold' },
-  orangeDot: { position: 'absolute', top: 4, right: 4, width: 8, height: 8, borderRadius: 4, backgroundColor: '#FFA726', opacity: 0.85, zIndex: 2 },
-  modalContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0,0,0,0.5)' },
-  modalContent: { backgroundColor: '#262835', borderRadius: 12, width: '90%', maxHeight: '80%' },
-  modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 16, borderBottomWidth: 1, borderBottomColor: '#31384A' },
-  modalTitle: { color: '#fff', fontSize: 18, fontWeight: 'bold' },
-  modalBody: { padding: 16 },
-  serviceCard: { backgroundColor: '#31384A', borderRadius: 8, padding: 16, marginBottom: 12 },
-  serviceClient: { color: '#10ace7', fontSize: 16, fontWeight: 'bold', marginBottom: 8 },
-  serviceDetail: { color: '#A0A4B8', fontSize: 14, marginBottom: 4 },
-  noServices: { color: '#A0A4B8', fontSize: 16, textAlign: 'center', fontStyle: 'italic' },
+  monthButton: { 
+    padding: 8 
+  },
+  monthText: { 
+    color: '#fff', 
+    fontSize: 18, 
+    fontWeight: 'bold' 
+  },
+  weekdaysContainer: { 
+    flexDirection: 'row', 
+    justifyContent: 'space-between', 
+    marginBottom: 8 
+  },
+  weekdayText: { 
+    color: '#A0A4B8', 
+    fontSize: 12, 
+    width: '14.28%', 
+    textAlign: 'center' 
+  },
+  daysContainer: { 
+    flexDirection: 'row', 
+    flexWrap: 'wrap' 
+  },
+  dayCell: { 
+    width: '14.28%', 
+    aspectRatio: 1, 
+    margin: 2, 
+    justifyContent: 'center', 
+    alignItems: 'center' 
+  },
+  dayCellWithDate: { 
+    backgroundColor: '#31384A', 
+    borderRadius: 8 
+  },
+  dayCellWithService: { 
+    backgroundColor: '#31384A' 
+  },
+  dayText: { 
+    color: '#A0A4B8', 
+    fontSize: 14 
+  },
+  dayTextWithDate: { 
+    color: '#fff' 
+  },
+  dayTextWithService: { 
+    fontWeight: 'bold' 
+  },
+  orangeDot: { 
+    position: 'absolute', 
+    top: 4, 
+    right: 4, 
+    width: 8, 
+    height: 8, 
+    borderRadius: 4, 
+    backgroundColor: '#FFA726', 
+    opacity: 0.85, 
+    zIndex: 2 
+  },
+  modalContainer: { 
+    flex: 1, 
+    justifyContent: 'center', 
+    alignItems: 'center', 
+    backgroundColor: 'rgba(0,0,0,0.5)' 
+  },
+  modalContent: { 
+    backgroundColor: '#262835', 
+    borderRadius: 12, 
+    width: '90%', 
+    maxHeight: '80%' 
+  },
+  modalHeader: { 
+    flexDirection: 'row', 
+    justifyContent: 'space-between', 
+    alignItems: 'center', 
+    padding: 16, 
+    borderBottomWidth: 1, 
+    borderBottomColor: '#31384A' 
+  },
+  modalTitle: { 
+    color: '#fff', 
+    fontSize: 18, 
+    fontWeight: 'bold', 
+    textAlign: 'center'
+  },
+  modalBody: { 
+    padding: 16 
+  },
+  serviceCard: { 
+    backgroundColor: '#31384A', 
+    borderRadius: 8, 
+    padding: 16, 
+    marginBottom: 12 
+  },
+  serviceClient: { 
+    color: '#10ace7', 
+    fontSize: 16, 
+    fontWeight: 'bold', 
+    marginBottom: 8 
+  },
+  serviceDetail: { 
+    color: '#A0A4B8', 
+    fontSize: 14, 
+    marginBottom: 4 
+  },
+  noServices: { 
+    color: '#A0A4B8', 
+    fontSize: 16, 
+    textAlign: 'center', 
+    fontStyle: 'italic' 
+  },
 });

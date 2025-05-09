@@ -1,50 +1,90 @@
-# Welcome to your Expo app 👋
+# Barbearia Will - App de Agendamento
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+Este é um aplicativo mobile para gestão de agendamentos de uma barbearia, desenvolvido em React Native com Expo. O app permite visualizar, criar e gerenciar agendamentos de clientes, além de acompanhar relatórios de atendimento e faturamento.
 
-## Get started
+## Funcionalidades Principais
 
-1. Install dependencies
+- **Calendário de Agendamentos:**
+  - Visualização mensal dos dias com agendamentos (marcados com ponto laranja).
+  - Ao clicar em um dia, exibe um modal com todos os serviços agendados para aquela data.
+  - Navegação entre meses.
 
+- **Listagem de Agendamentos:**
+  - Tela inicial mostra os próximos agendamentos, com opções para finalizar, cancelar ou bloquear um atendimento.
+
+- **Relatórios:**
+  - Relatórios diários, semanais e mensais de faturamento e clientes atendidos.
+  - Lista de clientes e serviços realizados em cada período.
+
+- **Interface Moderna:**
+  - Layout escuro, responsivo e com destaques em azul e laranja.
+  - Ícones intuitivos e navegação por abas.
+
+## Estrutura das Telas
+
+- **Agenda:**
+  - Exibe um calendário mensal.
+  - Dias com agendamento possuem um marcador laranja no canto superior direito.
+  - Modal detalha os serviços do dia selecionado.
+
+- **Início:**
+  - Lista de próximos agendamentos.
+  - Ações rápidas para cada agendamento.
+
+- **Relatórios:**
+  - Faturamento e clientes atendidos por período.
+  - Lista detalhada dos atendimentos.
+
+## Tecnologias Utilizadas
+
+- **React Native**: Framework principal para desenvolvimento mobile.
+- **Expo**: Ferramenta para facilitar o desenvolvimento, build e testes.
+- **TypeScript**: Tipagem estática para maior segurança e produtividade.
+- **React Navigation / Expo Router**: Navegação entre telas e abas.
+- **React Native Elements**: Componentes visuais prontos e customizáveis.
+- **Styled Components / StyleSheet**: Estilização dos componentes.
+
+## Estrutura de Pastas
+
+- `app/` - Telas principais do app (agenda, início, relatórios)
+- `components/` - Componentes reutilizáveis
+- `assets/` - Imagens e ícones
+- `constants/` - Cores, temas e configurações globais
+
+## Como rodar o projeto
+
+1. **Pré-requisitos:**
+   - Node.js >= 18
+   - Expo CLI (`npm install -g expo-cli`)
+
+2. **Instale as dependências:**
    ```bash
    npm install
    ```
 
-2. Start the app
-
+3. **Inicie o projeto:**
    ```bash
-   npx expo start
+   npm start
+   ```
+   Ou use:
+   ```bash
+   expo start
    ```
 
-In the output, you'll find options to open the app in a
+4. **Abra no seu dispositivo:**
+   - Use o app Expo Go (Android/iOS) para escanear o QR Code.
+   - Ou rode em um emulador Android/iOS.
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+## Personalização
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+- Para adicionar serviços/agendamentos de exemplo, edite o array `SERVICES` em `app/(tabs)/appointments.tsx`.
+- Para alterar cores e temas, edite os arquivos em `constants/` ou os objetos de estilos nas telas.
 
-## Get a fresh project
+## Observações
 
-When you're ready, run:
+- O app é apenas um protótipo e pode ser expandido para incluir autenticação, integração com backend, notificações, etc.
+- O calendário é totalmente funcional e pode ser adaptado para outros tipos de negócio.
 
-```bash
-npm run reset-project
-```
+## Licença
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
-
-## Learn more
-
-To learn more about developing your project with Expo, look at the following resources:
-
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
-
-## Join the community
-
-Join our community of developers creating universal apps.
-
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+MIT

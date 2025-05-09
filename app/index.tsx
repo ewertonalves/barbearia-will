@@ -62,7 +62,7 @@ export default function LoginScreen() {
           <Text style = {styles.buttonText}>Entrar</Text>
         </TouchableOpacity>
         <View style = {styles.footerLinks}>
-          <Text style = {styles.footerText}>Esqueceu sua senha?</Text>
+          <Text style = {styles.footerText}>©️Desenvolvido por Ewerton Virginio</Text>
         </View>
       </View>
     </View>
@@ -152,13 +152,17 @@ const styles = StyleSheet.create({
   },
   footerLinks: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     marginTop: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
   },
   footerText: {
     color: '#A0A4B8',
-    fontSize: 14,
-  },
+    fontSize: 10,
+    textAlign: 'center',
+    width: '100%',
+  },  
   text: {
     color: '#fff',
     fontSize: 15,
