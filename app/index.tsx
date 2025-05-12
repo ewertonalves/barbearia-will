@@ -1,13 +1,17 @@
 import { router } from 'expo-router';
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Image, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import { Icon } from 'react-native-elements';
+import { UserContext } from './_layout';
 
 export default function LoginScreen() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const userCtx = useContext(UserContext);
 
   const handleLogin = () => {
+    // Salva o nome do usuário no contexto global
+    userCtx.setUsername(username);
     // TODO: Implementar autenticação real
     router.replace('/(tabs)');
   };
@@ -18,7 +22,7 @@ export default function LoginScreen() {
         {/* Substitua a source abaixo pelo logo real depois */}
         <View style = {styles.logoCircle}>
           <Image
-            source     = {require('../assets/images/will_estilos.png')}
+            source     = {require('../assets/images/will-logo.png')}
             style      = {styles.logo}
             resizeMode = "contain"
           />
@@ -94,8 +98,8 @@ const styles = StyleSheet.create({
     elevation: 4,
   },
   logo: {
-    width: 250,
-    height: 250,
+    width: 350,
+    height: 350,
   },
   title: {
     color: '#fff',

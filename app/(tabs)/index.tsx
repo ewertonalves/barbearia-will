@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { BillingContext } from '../_layout';
 
 interface Appointment {
   id:           string;
@@ -43,8 +44,14 @@ export default function HomeScreen() {
     },
   ]);
 
+  const { addService } = useContext(BillingContext);
+
   const handleComplete = (id: string) => {
-    setAppointments(appointments.map(a => a.id === id ? { ...a, completed: true } : a));
+    const appointment = appointments.find(a => a.id === id);
+    if (appointment) {
+      setAppointments(appointments.map(a => a.id === id ? { ...a, completed: true } : a));
+      addService(appointment.service, appointment.value, new Date().toISOString());
+    }
   };
 
   const handleCancel = (id: string) => {
@@ -57,7 +64,7 @@ export default function HomeScreen() {
 
   return (
     <View style = {styles.container}>
-      <Text style = {styles.header}>PRÓXIMOS AGENDAMENTOS</Text>
+      <Text style = {styles.header}>AGENDAMENTOS DO DIA</Text>
       <ScrollView style = {styles.list}>
         {appointments.map(appointment => (
           <View key = {appointment.id} style={[styles.card, appointment.completed && styles.completed, appointment.blocked && styles.blocked]}>

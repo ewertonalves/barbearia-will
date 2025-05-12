@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Icon } from 'react-native-elements';
 
@@ -9,9 +9,10 @@ interface Service {
   value: number;
   professional: string;
   time: string;
-  date: string;
+  date: string; // Formato YYYY-MM-DD
 }
 
+// Seus dados de SERVICES permanecem os mesmos
 const SERVICES: Service[] = [
   {
     id: '1',
@@ -211,92 +212,77 @@ const SERVICES: Service[] = [
     time: '18:00',
     date: '2024-03-29',
   },
+  // Adicionando serviços para a data atual (Maio de 2025) para teste
   {
-    id: '23',
-    clientName: 'Exemplo Maio',
-    service: 'Corte de Cabelo',
-    value: 30,
-    professional: 'Willian',
+    id: '29',
+    clientName: 'Cliente Teste Dia Atual',
+    service: 'Teste Serviço',
+    value: 10,
+    professional: 'Tester',
+    time: '09:00',
+    date: '2025-05-12', // Data atual (quando esta resposta foi gerada)
+  },
+  {
+    id: '30',
+    clientName: 'Outro Cliente Teste',
+    service: 'Outro Teste',
+    value: 15,
+    professional: 'Tester',
     time: '10:00',
-    date: '2024-05-02',
-  },
-  {
-    id: '24',
-    clientName: 'Exemplo Maio 2',
-    service: 'Barba',
-    value: 20,
-    professional: 'Abner',
-    time: '15:00',
-    date: '2024-05-15',
-  },
-  {
-    id: '25',
-    clientName: 'Exemplo Maio 3',
-    service: 'Corte + Barba',
-    value: 45,
-    professional: 'Willian',
-    time: '18:00',
-    date: '2024-05-28',
-  },
-  {
-    id: '26',
-    clientName: 'Exemplo Junho',
-    service: 'Corte Feminino',
-    value: 50,
-    professional: 'Abner',
-    time: '11:00',
-    date: '2024-06-05',
-  },
-  {
-    id: '27',
-    clientName: 'Exemplo Junho 2',
-    service: 'Barba',
-    value: 20,
-    professional: 'Willian',
-    time: '16:00',
-    date: '2024-06-18',
-  },
-  {
-    id: '28',
-    clientName: 'Exemplo Junho 3',
-    service: 'Corte de Cabelo',
-    value: 30,
-    professional: 'Abner',
-    time: '17:00',
-    date: '2024-06-25',
+    date: '2025-05-13',
   }
 ];
 
+
 const WEEKDAYS = ['DOM', 'SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SAB'];
 
-// Função utilitária para formatar data no padrão DD-MM-YYYY
+// Função para formatar data para YYYY-MM-DD
+function formatDateToISO(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
 function formatDateBR(dateStr: string | null) {
   if (!dateStr) return '';
   const [yyyy, mm, dd] = dateStr.split('-');
-  return `${dd}`;
+  return `${dd}/${mm}/${yyyy}`;
 }
 
 export default function AppointmentsScreen() {
-  const firstDate = SERVICES.length > 0 ? new Date(SERVICES[0].date) : new Date();
-  const [selectedDate, setSelectedDate] = useState(new Date(firstDate.getFullYear(), firstDate.getMonth()));
+  // selectedDate já é inicializado com a data atual, o que é correto.
+  const [selectedDate, setSelectedDate] = useState(new Date());
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedServices, setSelectedServices] = useState<Service[]>([]);
   const [selectedDay, setSelectedDay] = useState<string | null>(null);
+
+  // Obtém a data de hoje formatada para comparação, usando useMemo para otimização
+  const todayISO = useMemo(() => formatDateToISO(new Date()), []);
 
   const getDaysInMonth = (date: Date) => {
     const year = date.getFullYear();
     const month = date.getMonth();
     const daysInMonth = new Date(year, month + 1, 0).getDate();
+    // getDay() retorna 0 para Domingo, 1 para Segunda, ..., 6 para Sábado
     const firstDayOfMonth = new Date(year, month, 1).getDay();
-    const days: { day: string; date: string | null }[] = [];
+    const days: { day: string; date: string | null; isToday?: boolean }[] = [];
 
+    // Preenche os dias vazios no início do mês
     for (let i = 0; i < firstDayOfMonth; i++) {
       days.push({ day: '', date: null });
     }
+
+    // Preenche os dias do mês
     for (let i = 1; i <= daysInMonth; i++) {
       const monthStr = String(month + 1).padStart(2, '0');
       const dayStr = String(i).padStart(2, '0');
-      days.push({ day: i.toString(), date: `${year}-${monthStr}-${dayStr}` });
+      const currentDateISO = `${year}-${monthStr}-${dayStr}`;
+      days.push({
+        day: i.toString(),
+        date: currentDateISO,
+        isToday: currentDateISO === todayISO, // Verifica se é o dia atual
+      });
     }
     return days;
   };
@@ -311,20 +297,33 @@ export default function AppointmentsScreen() {
 
   const renderCalendar = () => {
     const days = getDaysInMonth(selectedDate);
-    const monthName = selectedDate.toLocaleString('pt-BR', { month: 'long', year: 'numeric' }).toUpperCase();
+    const monthName = selectedDate.toLocaleString('pt-BR', {
+      month: 'long',
+      year: 'numeric'
+    }).toUpperCase();
 
     return (
       <View style={styles.calendarContainer}>
         <View style={styles.calendarHeader}>
           <TouchableOpacity
-            onPress={() => setSelectedDate(new Date(selectedDate.getFullYear(), selectedDate.getMonth() - 1))}
+            onPress={() => setSelectedDate(new Date(
+              selectedDate.getFullYear(),
+              selectedDate.getMonth() - 1,
+              1 // Define para o primeiro dia do mês anterior
+            ))}
             style={styles.monthButton}
           >
             <Icon name="chevron-left" type="feather" color="#fff" size={24} />
           </TouchableOpacity>
+          
           <Text style={styles.monthText}>{monthName}</Text>
+          
           <TouchableOpacity
-            onPress={() => setSelectedDate(new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1))}
+            onPress={() => setSelectedDate(new Date(
+              selectedDate.getFullYear(),
+              selectedDate.getMonth() + 1,
+              1 // Define para o primeiro dia do próximo mês
+            ))}
             style={styles.monthButton}
           >
             <Icon name="chevron-right" type="feather" color="#fff" size={24} />
@@ -338,28 +337,31 @@ export default function AppointmentsScreen() {
         </View>
 
         <View style={styles.daysContainer}>
-          {days.map((day, idx) => {
-            const hasService = !!day.date && SERVICES.some(s => s.date === day.date);
+          {days.map((dayObj, idx) => {
+            const hasService = !!dayObj.date && SERVICES.some(s => s.date === dayObj.date);
             return (
               <TouchableOpacity
                 key={idx}
                 style={[
                   styles.dayCell,
-                  day.date && styles.dayCellWithDate,
-                  hasService && styles.dayCellWithService
+                  dayObj.date && styles.dayCellWithDate,
+                  dayObj.isToday && styles.currentDayCell, // Estilo para o dia atual
+                  // Removido hasService && styles.dayCellWithService para não sobrescrever o currentDayCell
+                  // O ponto laranja já indica serviço
                 ]}
-                onPress={() => handleDayPress(day.date)}
-                disabled={!day.date}
-                activeOpacity={day.date ? 0.7 : 1}
+                onPress={() => handleDayPress(dayObj.date)}
+                disabled={!dayObj.date}
+                activeOpacity={dayObj.date ? 0.7 : 1}
               >
                 {hasService && <View style={styles.orangeDot} />}
                 <Text style={[
                   styles.dayText,
-                  day.date && styles.dayTextWithDate,
-                  hasService && styles.dayTextWithService,
-                  !day.date && { color: 'transparent' }
+                  dayObj.date && styles.dayTextWithDate,
+                  dayObj.isToday && styles.currentDayText, // Estilo para o texto do dia atual
+                  // hasService && styles.dayTextWithService, // Pode ser combinado ou removido
+                  !dayObj.date && { color: 'transparent' }
                 ]}>
-                  {day.day}
+                  {dayObj.day}
                 </Text>
               </TouchableOpacity>
             );
@@ -382,7 +384,9 @@ export default function AppointmentsScreen() {
         <View style={styles.modalContainer}>
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Agendamentos do Dia - {formatDateBR(selectedDay)}</Text>
+              <Text style={styles.modalTitle}>
+                Agendamentos - {formatDateBR(selectedDay)}
+              </Text>
               <TouchableOpacity onPress={() => setModalVisible(false)}>
                 <Icon name="x" type="feather" color="#fff" size={24} />
               </TouchableOpacity>
@@ -435,114 +439,124 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 16,
   },
-  monthButton: { 
-    padding: 8 
+  monthButton: {
+    padding: 8
   },
-  monthText: { 
-    color: '#fff', 
-    fontSize: 18, 
-    fontWeight: 'bold' 
+  monthText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold'
   },
-  weekdaysContainer: { 
-    flexDirection: 'row', 
-    justifyContent: 'space-between', 
-    marginBottom: 8 
+  weekdaysContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 8
   },
-  weekdayText: { 
-    color: '#A0A4B8', 
-    fontSize: 12, 
-    width: '14.28%', 
-    textAlign: 'center' 
-  },
-  daysContainer: { 
-    flexDirection: 'row', 
-    flexWrap: 'wrap' 
-  },
-  dayCell: { 
-    width: '14.28%', 
-    aspectRatio: 1, 
-    margin: 2, 
-    justifyContent: 'center', 
-    alignItems: 'center' 
-  },
-  dayCellWithDate: { 
-    backgroundColor: '#31384A', 
-    borderRadius: 8 
-  },
-  dayCellWithService: { 
-    backgroundColor: '#31384A' 
-  },
-  dayText: { 
-    color: '#A0A4B8', 
-    fontSize: 14 
-  },
-  dayTextWithDate: { 
-    color: '#fff' 
-  },
-  dayTextWithService: { 
-    fontWeight: 'bold' 
-  },
-  orangeDot: { 
-    position: 'absolute', 
-    top: 4, 
-    right: 4, 
-    width: 8, 
-    height: 8, 
-    borderRadius: 4, 
-    backgroundColor: '#FFA726', 
-    opacity: 0.85, 
-    zIndex: 2 
-  },
-  modalContainer: { 
-    flex: 1, 
-    justifyContent: 'center', 
-    alignItems: 'center', 
-    backgroundColor: 'rgba(0,0,0,0.5)' 
-  },
-  modalContent: { 
-    backgroundColor: '#262835', 
-    borderRadius: 12, 
-    width: '90%', 
-    maxHeight: '80%' 
-  },
-  modalHeader: { 
-    flexDirection: 'row', 
-    justifyContent: 'space-between', 
-    alignItems: 'center', 
-    padding: 16, 
-    borderBottomWidth: 1, 
-    borderBottomColor: '#31384A' 
-  },
-  modalTitle: { 
-    color: '#fff', 
-    fontSize: 18, 
-    fontWeight: 'bold', 
+  weekdayText: {
+    color: '#A0A4B8',
+    fontSize: 12,
+    width: '14.28%', // Garante 7 colunas
     textAlign: 'center'
   },
-  modalBody: { 
-    padding: 16 
+  daysContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'flex-start', // Para alinhar corretamente as células
   },
-  serviceCard: { 
-    backgroundColor: '#31384A', 
-    borderRadius: 8, 
-    padding: 16, 
-    marginBottom: 12 
+  dayCell: {
+    width: `${100 / 7 - 2}%`, // Ajuste para caber 7 colunas com pequena margem
+    aspectRatio: 1,
+    marginHorizontal: '1%', // Pequena margem horizontal
+    marginVertical: 4, // Pequena margem vertical
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  serviceClient: { 
-    color: '#10ace7', 
-    fontSize: 16, 
-    fontWeight: 'bold', 
-    marginBottom: 8 
+  dayCellWithDate: {
+    backgroundColor: '#31384A',
+    borderRadius: 8
   },
-  serviceDetail: { 
-    color: '#A0A4B8', 
-    fontSize: 14, 
-    marginBottom: 4 
+  currentDayCell: { // Novo estilo para o dia atual
+    backgroundColor: '#FFA726', // Uma cor de destaque, por exemplo laranja
+    borderRadius: 8,
   },
-  noServices: { 
-    color: '#A0A4B8', 
-    fontSize: 16, 
-    textAlign: 'center', 
-    fontStyle: 'italic' 
+  // dayCellWithService: { // Pode ser removido se o ponto laranja for suficiente
+  //   backgroundColor: '#31384A' 
+  // },
+  dayText: {
+    color: '#A0A4B8',
+    fontSize: 14
+  },
+  dayTextWithDate: {
+    color: '#fff'
+  },
+  currentDayText: { // Novo estilo para o texto do dia atual
+    color: '#000', // Cor de texto que contrasta com o fundo do dia atual
+    fontWeight: 'bold',
+  },
+  // dayTextWithService: { // Pode ser combinado ou ajustado
+  //   fontWeight: 'bold' 
+  // },
+  orangeDot: {
+    position: 'absolute',
+    top: 4,
+    right: 4,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#FFA726', // Mantido o ponto laranja para serviços
+    opacity: 0.85,
+    zIndex: 2
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)'
+  },
+  modalContent: {
+    backgroundColor: '#262835',
+    borderRadius: 12,
+    width: '90%',
+    maxHeight: '80%'
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: '#31384A'
+  },
+  modalTitle: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+    textAlign: 'center'
+  },
+  modalBody: {
+    padding: 16
+  },
+  serviceCard: {
+    backgroundColor: '#31384A',
+    borderRadius: 8,
+    padding: 16,
+    marginBottom: 12
+  },
+  serviceClient: {
+    color: '#10ace7',
+    fontSize: 16,
+    fontWeight: 'bold',
+    marginBottom: 8
+  },
+  serviceDetail: {
+    color: '#A0A4B8',
+    fontSize: 14,
+    marginBottom: 4
+  },
+  noServices: {
+    color: '#A0A4B8',
+    fontSize: 16,
+    textAlign: 'center',
+    fontStyle: 'italic'
   },
 });

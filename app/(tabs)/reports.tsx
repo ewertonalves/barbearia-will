@@ -1,66 +1,6 @@
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-
-const REPORTS = {
-  daily: {
-    value: 350,
-    clients: [
-      { name: 'João Silva',   service: 'Corte de Cabelo' },
-      { name: 'Maria Souza',  service: 'Barba' },
-      { name: 'Carlos Lima',  service: 'Corte + Barba' },
-    ],
-  },
-  weekly: {
-    value: 1800,
-    clients: [
-      { name: 'João Silva',     service: 'Corte de Cabelo' },
-      { name: 'Maria Souza',    service: 'Barba' },
-      { name: 'Carlos Lima',    service: 'Corte + Barba' },
-      { name: 'Ana Paula',      service: 'Corte Feminino' },
-      { name: 'Pedro Santos',   service: 'Barba' },
-      { name: 'Lucas Rocha',    service: 'Corte de Cabelo' },
-      { name: 'Fernanda Dias',  service: 'Corte + Barba' },
-      { name: 'Rafael Costa',   service: 'Barba' },
-      { name: 'Juliana Alves',  service: 'Corte Feminino' },
-      { name: 'Bruno Martins',  service: 'Corte de Cabelo' },
-    ],
-  },
-  monthly: {
-    value: 7200,
-    clients: [
-      { name: 'João Silva',     service: 'Corte de Cabelo' },
-      { name: 'Maria Souza',    service: 'Barba' },
-      { name: 'Carlos Lima',    service: 'Corte + Barba' },
-      { name: 'Ana Paula',      service: 'Corte Feminino' },
-      { name: 'Pedro Santos',   service: 'Barba' },
-      { name: 'Lucas Rocha',    service: 'Corte de Cabelo' },
-      { name: 'Fernanda Dias',  service: 'Corte + Barba' },
-      { name: 'Rafael Costa',   service: 'Barba' },
-      { name: 'Juliana Alves',  service: 'Corte Feminino' },
-      { name: 'Bruno Martins',  service: 'Corte de Cabelo' },
-      { name: 'Amanda Souza',   service: 'Corte de Cabelo' },
-      { name: 'Tiago Lima',     service: 'Barba' },
-      { name: 'Patrícia Gomes', service: 'Corte + Barba' },
-      { name: 'Eduardo Silva',  service: 'Corte de Cabelo' },
-      { name: 'Marina Rocha',   service: 'Corte Feminino' },
-      { name: 'Fábio Dias',     service: 'Barba' },
-      { name: 'Gabriela Costa', service: 'Corte de Cabelo' },
-      { name: 'Rodrigo Alves',  service: 'Corte + Barba' },
-      { name: 'Beatriz Martins', service: 'Corte Feminino' },
-      { name: 'Vinícius Souza', service: 'Barba' },
-      { name: 'Letícia Lima',   service: 'Corte de Cabelo' },
-      { name: 'André Gomes',    service: 'Corte + Barba' },
-      { name: 'Camila Silva',   service: 'Corte Feminino' },
-      { name: 'Henrique Rocha', service: 'Barba' },
-      { name: 'Larissa Dias',   service: 'Corte de Cabelo' },
-      { name: 'Felipe Costa',   service: 'Corte + Barba' },
-      { name: 'Priscila Alves', service: 'Corte Feminino' },
-      { name: 'Otávio Martins', service: 'Corte de Cabelo' },
-      { name: 'Sabrina Souza',  service: 'Barba' },
-      { name: 'Gustavo Lima',   service: 'Corte + Barba' },
-    ],
-  },
-};
+import { BillingContext } from '../_layout';
 
 const FILTERS = [
   { key: 'daily',   label: 'Diário' },
@@ -70,7 +10,8 @@ const FILTERS = [
 
 export default function ReportsScreen() {
   const [selected, setSelected] = useState<'daily' | 'weekly' | 'monthly'>('daily');
-  const report = REPORTS[selected];
+  const { billingData } = useContext(BillingContext);
+  const report = billingData[selected];
 
   return (
     <View style={styles.container}>
@@ -91,19 +32,19 @@ export default function ReportsScreen() {
         <Text style={styles.value}>R$ {report.value.toFixed(2)}</Text>
       </View>
       <View style={styles.countBox}>
-        <Text style={styles.countLabel}>Clientes atendidos</Text>
-        <Text style={styles.count}>{report.clients.length}</Text>
+        <Text style={styles.countLabel}>Serviços realizados</Text>
+        <Text style={styles.count}>{report.services.length}</Text>
       </View>
-      <Text style={styles.listTitle}>Lista de clientes atendidos</Text>
+      <Text style={styles.listTitle}>Lista de serviços realizados</Text>
       <FlatList
-        data={report.clients}
+        data={report.services}
         keyExtractor={(_, idx) => String(idx)}
         style={styles.list}
         contentContainerStyle={{ paddingBottom: 24 }}
         renderItem={({ item }) => (
           <View style={styles.clientRow}>
-            <Text style={styles.clientName}>{item.name}</Text>
             <Text style={styles.clientService}>{item.service}</Text>
+            <Text style={styles.clientValue}>R$ {item.value.toFixed(2)}</Text>
           </View>
         )}
       />
@@ -187,7 +128,7 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontWeight: 'bold',
     marginBottom: 8,
-    marginTop: 8,
+    marginTop: -20,
   },
   list: {
     backgroundColor: '#262835',
@@ -202,14 +143,14 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 4,
   },
-  clientName: {
+  clientService: {
     color: '#fff',
     fontSize: 15,
     fontWeight: 'bold',
   },
-  clientService: {
-    color: '#A0A4B8',
+  clientValue: {
+    color: '#10ace7',
     fontSize: 15,
-    fontStyle: 'italic',
+    fontWeight: 'bold',
   },
 }); 
