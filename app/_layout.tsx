@@ -3,7 +3,12 @@ import { StatusBar } from 'expo-status-bar';
 import React, { createContext, useState } from 'react';
 
 // Contexto para usuário logado
-export const UserContext = createContext({ username: '', setUsername: (name: string) => {} });
+export const UserContext = createContext({ 
+  username: '', 
+  setUsername: (name: string) => {},
+  userType: '' as 'owner' | 'employee' | '',
+  setUserType: (type: 'owner' | 'employee') => {}
+});
 
 interface BillingData {
   daily: {
@@ -46,6 +51,7 @@ export const BillingContext = createContext<{
 
 export default function RootLayout() {
   const [username, setUsername] = useState('');
+  const [userType, setUserType] = useState<'owner' | 'employee' | ''>('');
   const [billingData, setBillingData] = useState<BillingData>({
     daily: { value: 0, services: [] },
     weekly: { value: 0, services: [] },
@@ -97,7 +103,7 @@ export default function RootLayout() {
   };
 
   return (
-    <UserContext.Provider value={{ username, setUsername }}>
+    <UserContext.Provider value={{ username, setUsername, userType, setUserType }}>
       <BillingContext.Provider value={{ billingData, addService }}>
         <Stack>
           <Stack.Screen 

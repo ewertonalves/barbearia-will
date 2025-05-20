@@ -5,12 +5,16 @@ import { Icon } from 'react-native-elements';
 import { UserContext } from '../_layout';
 
 export default function TabsLayout() {
-  const { username } = useContext(UserContext);
+  const { username, userType } = useContext(UserContext);
+  
+  // Extrai o primeiro nome do email e capitaliza a primeira letra
+  const firstName = username ? username.split('@')[0].charAt(0).toUpperCase() + username.split('@')[0].slice(1) : '';
+
   return (
     <>
       <View style={styles.greetingContainer}>
         <Image source={require('../../assets/images/will-logo.png')} style={styles.logo} />
-        <Text style={styles.greetingText}>Olá{username ? `, ${username}` : ''}.</Text>
+        <Text style={styles.greetingText}>Olá{firstName ? `, ${firstName}` : ''}.</Text>
       </View>
       <Tabs
         screenOptions = {{
@@ -52,6 +56,7 @@ export default function TabsLayout() {
             tabBarIcon: ({ color }) => (
               <Icon name="bar-chart" type="feather" color={color} size={24} />
             ),
+            href: userType === 'owner' ? undefined : null,
           }}
         />
       </Tabs>

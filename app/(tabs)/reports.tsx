@@ -1,6 +1,7 @@
-import React, { useContext, useState } from 'react';
+import { router } from 'expo-router';
+import React, { useContext, useEffect, useState } from 'react';
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { BillingContext } from '../_layout';
+import { BillingContext, UserContext } from '../_layout';
 
 const FILTERS = [
   { key: 'daily',   label: 'Diário' },
@@ -11,7 +12,20 @@ const FILTERS = [
 export default function ReportsScreen() {
   const [selected, setSelected] = useState<'daily' | 'weekly' | 'monthly'>('daily');
   const { billingData } = useContext(BillingContext);
+  const { userType } = useContext(UserContext);
   const report = billingData[selected];
+
+  useEffect(() => {
+    // Redireciona para a tela inicial se não for o proprietário
+    if (userType !== 'owner') {
+      router.replace('/(tabs)');
+    }
+  }, [userType]);
+
+  // Se não for o proprietário, não renderiza nada
+  if (userType !== 'owner') {
+    return null;
+  }
 
   return (
     <View style={styles.container}>

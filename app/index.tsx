@@ -11,7 +11,17 @@ export default function LoginScreen() {
 
   const handleLogin = () => {
     // Salva o nome do usuário no contexto global
-    userCtx.setUsername(username);
+    // Extrai o nome antes do '@' para salvar no contexto
+    const nameToSave = username.split('@')[0].charAt(0).toUpperCase() + username.split('@')[0].slice(1);
+    userCtx.setUsername(nameToSave);
+    
+    // Define o tipo de usuário baseado no email completo
+    if (username.toLowerCase() === 'willian@barbearia.com') {
+      userCtx.setUserType('owner');
+    } else {
+      userCtx.setUserType('employee');
+    }
+    
     // TODO: Implementar autenticação real
     router.replace('/(tabs)');
   };
@@ -27,8 +37,6 @@ export default function LoginScreen() {
             resizeMode = "contain"
           />
         </View>
-        {/* <Text style={styles.title}>BARBEARIA</Text>
-        <Text style={styles.title}>Will - Estilos</Text> */}
       </View>
       <View style = {styles.formContainer}>
         <View style = {styles.inputWrapper}>

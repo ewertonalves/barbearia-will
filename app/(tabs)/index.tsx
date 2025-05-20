@@ -1,16 +1,16 @@
 import React, { useContext, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { BillingContext } from '../_layout';
+import { BillingContext, UserContext } from '../_layout';
 
 interface Appointment {
-  id:           string;
-  clientName:   string;
-  service:      string;
-  value:        number;
+  id: string;
+  clientName: string;
+  service: string;
+  value: number;
   professional: string;
-  time:         string;
-  completed:    boolean;
-  blocked?:     boolean;
+  time: string;
+  completed: boolean;
+  blocked?: boolean;
 }
 
 export default function HomeScreen() {
@@ -45,56 +45,77 @@ export default function HomeScreen() {
   ]);
 
   const { addService } = useContext(BillingContext);
+  const { userType, username } = useContext(UserContext);
+
+  const loggedInUserName = username ? username.split('@')[0].charAt(0).toUpperCase() + username.split('@')[0].slice(1) : '';
 
   const handleComplete = (id: string) => {
     const appointment = appointments.find(a => a.id === id);
     if (appointment) {
-      setAppointments(appointments.map(a => a.id === id ? { ...a, completed: true } : a));
-      addService(appointment.service, appointment.value, new Date().toISOString());
+      if (userType === 'owner' || loggedInUserName === appointment.professional) {
+        setAppointments(appointments.map(a => a.id === id ? { ...a, completed: true } : a));
+        addService(appointment.service, appointment.value, new Date().toISOString());
+      }
     }
   };
 
   const handleCancel = (id: string) => {
-    setAppointments(appointments.filter(a => a.id !== id));
+    const appointment = appointments.find(a => a.id === id);
+    if (appointment) {
+      if (userType === 'owner' || loggedInUserName === appointment.professional) {
+        setAppointments(appointments.filter(a => a.id !== id));
+      }
+    }
   };
 
   const handleBlock = (id: string) => {
-    setAppointments(appointments.map(a => a.id === id ? { ...a, blocked: !a.blocked } : a));
+    const appointment = appointments.find(a => a.id === id);
+    if (appointment) {
+      if (userType === 'owner' || loggedInUserName === appointment.professional) {
+        setAppointments(appointments.map(a => a.id === id ? { ...a, blocked: !a.blocked } : a));
+      }
+    }
   };
 
   return (
-    <View style = {styles.container}>
-      <Text style = {styles.header}>AGENDAMENTOS DO DIA</Text>
-      <ScrollView style = {styles.list}>
-        {appointments.map(appointment => (
-          <View key = {appointment.id} style={[styles.card, appointment.completed && styles.completed, appointment.blocked && styles.blocked]}>
-            <View style = {styles.info}>
-              <Text style = {styles.client}>{appointment.clientName}</Text>
-              <Text style = {styles.detail}>{appointment.service} - {appointment.time}</Text>
-              <Text style = {styles.detail}>Profissional: {appointment.professional}</Text>
-              <Text style = {styles.detail}>Valor: R$ {appointment.value.toFixed(2)}</Text>
+    <View style={styles.container}>
+      <Text style={styles.header}>AGENDAMENTOS DO DIA</Text>
+      <ScrollView style={styles.list}>
+        {appointments.map(appointment => {
+          return (
+            <View key={appointment.id} style={[styles.card, appointment.completed && styles.completed, appointment.blocked && styles.blocked]}>
+              <View style={styles.info}>
+                <Text style={styles.client}>{appointment.clientName}</Text>
+                <Text style={styles.detail}>{appointment.service} - {appointment.time}</Text>
+                <Text style={styles.detail}>Profissional: {appointment.professional}</Text>
+                <Text style={styles.detail}>Valor: R$ {appointment.value.toFixed(2)}</Text>
+              </View>
+              <View style={styles.actions}>
+                {(userType === 'owner' || (userType === 'employee' && loggedInUserName === appointment.professional)) && (
+                  <>
+                    {!appointment.completed && !appointment.blocked && (
+                      <TouchableOpacity style={styles.actionButton} onPress={() => handleComplete(appointment.id)}>
+                        <Text style={styles.actionText}>Finalizar</Text>
+                      </TouchableOpacity>
+                    )}
+                    {!appointment.completed && !appointment.blocked && (
+                      <TouchableOpacity style={[styles.actionButton, { backgroundColor: '#e74c3c' }]} onPress={() => handleCancel(appointment.id)}>
+                        <Text style={styles.actionText}>Cancelar</Text>
+                      </TouchableOpacity>
+                    )}
+                    {!appointment.completed && (
+                      <TouchableOpacity style={[styles.actionButton, { backgroundColor: '#888' }]} onPress={() => handleBlock(appointment.id)}>
+                        <Text style={styles.actionText}>{appointment.blocked ? 'Desbloquear' : 'Bloquear'}</Text>
+                      </TouchableOpacity>
+                    )}
+                  </>
+                )}
+                {appointment.completed && <Text style={styles.completedText}>Atendido</Text>}
+                {appointment.blocked && <Text style={styles.blockedText}>Bloqueado</Text>}
+              </View>
             </View>
-            <View style = {styles.actions}>
-              {!appointment.completed && !appointment.blocked && (
-                <TouchableOpacity style = {styles.actionButton} onPress = {() => handleComplete(appointment.id)}>
-                  <Text style = {styles.actionText}>Finalizar</Text>
-                </TouchableOpacity>
-              )}
-              {!appointment.completed && !appointment.blocked && (
-                <TouchableOpacity style = {[styles.actionButton, { backgroundColor: '#e74c3c' }]} onPress = {() => handleCancel(appointment.id)}>
-                  <Text style = {styles.actionText}>Cancelar</Text>
-                </TouchableOpacity>
-              )}
-              {!appointment.completed && (
-                <TouchableOpacity style = {[styles.actionButton, { backgroundColor: '#888' }]} onPress = {() => handleBlock(appointment.id)}>
-                  <Text style = {styles.actionText}>{appointment.blocked ? 'Desbloquear' : 'Bloquear'}</Text>
-                </TouchableOpacity>
-              )}
-              {appointment.completed && <Text style = {styles.completedText}>Atendido</Text>}
-              {appointment.blocked && <Text style = {styles.blockedText}>Bloqueado</Text>}
-            </View>
-          </View>
-        ))}
+          );
+        })}
       </ScrollView>
     </View>
   );
