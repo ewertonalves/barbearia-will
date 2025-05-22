@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { BillingContext, UserContext } from '../_layout';
 
@@ -14,40 +14,25 @@ interface Appointment {
 }
 
 export default function HomeScreen() {
-  const [appointments, setAppointments] = useState<Appointment[]>([
-    {
-      id: '1',
-      clientName: 'João Silva',
-      service: 'Corte de Cabelo',
-      value: 30,
-      professional: 'Willian',
-      time: '10:00',
-      completed: false,
-    },
-    {
-      id: '2',
-      clientName: 'Maria Souza',
-      service: 'Barba',
-      value: 20,
-      professional: 'Abner',
-      time: '11:00',
-      completed: false,
-    },
-    {
-      id: '3',
-      clientName: 'Carlos Lima',
-      service: 'Corte + Barba',
-      value: 45,
-      professional: 'Abner',
-      time: '12:00',
-      completed: false,
-    },
-  ]);
-
+  const [appointments, setAppointments] = useState<Appointment[]>([]);
   const { addService } = useContext(BillingContext);
   const { userType, username } = useContext(UserContext);
 
   const loggedInUserName = username ? username.split('@')[0].charAt(0).toUpperCase() + username.split('@')[0].slice(1) : '';
+
+  useEffect(() => {
+    const fetchAppointments = async () => {
+      try {
+        const response = await fetch('http://localhost:8080/webhook/appointments');
+        const data = await response.json();
+        setAppointments(data);
+      } catch (error) {
+        console.error('Erro ao buscar agendamentos:', error);
+      }
+    };
+
+    fetchAppointments();
+  }, []);
 
   const handleComplete = (id: string) => {
     const appointment = appointments.find(a => a.id === id);
