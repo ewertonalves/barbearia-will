@@ -3,14 +3,14 @@ import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-nati
 import { BillingContext, UserContext } from '../_layout';
 
 interface Appointment {
-  id: string;
-  clientName: string;
-  service: string;
-  value: number;
+  id:           string;
+  clientName:   string;
+  service:      string;
+  value:        number;
   professional: string;
-  time: string;
-  completed: boolean;
-  blocked?: boolean;
+  time:         string;
+  completed:    boolean;
+  blocked?:     boolean;
 }
 
 export default function HomeScreen() {
@@ -23,8 +23,8 @@ export default function HomeScreen() {
   useEffect(() => {
     const fetchAppointments = async () => {
       try {
-        const response = await fetch('http://localhost:8080/webhook/appointments');
-        const data = await response.json();
+        const response  = await fetch('http://localhost:8080/webhook/appointments');
+        const data      = await response.json();
         setAppointments(data);
       } catch (error) {
         console.error('Erro ao buscar agendamentos:', error);

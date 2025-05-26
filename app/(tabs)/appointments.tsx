@@ -3,20 +3,20 @@ import { Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'rea
 import { Icon } from 'react-native-elements';
 
 interface Service {
-  id: string;
-  clientName: string;
-  service: string;
-  value: number;
+  id:           string;
+  clientName:   string;
+  service:      string;
+  value:        number;
   professional: string;
-  time: string;
-  date: string; // Formato YYYY-MM-DD
+  time:         string;
+  date:         string; // Formato YYYY-MM-DD
 }
 
 // Função para formatar data para YYYY-MM-DD
 function formatDateToISO(date: Date): string {
-  const year = date.getFullYear();
+  const year  = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
+  const day   = String(date.getDate()).padStart(2, '0');
   return `${year}-${month}-${day}`;
 }
 
@@ -42,8 +42,8 @@ export default function AppointmentsScreen() {
   useEffect(() => {
     const fetchAppointments = async () => {
       try {
-        const response = await fetch('http://localhost:8080/webhook/appointments');
-        const data = await response.json();
+        const response  = await fetch('http://localhost:8080/webhook/appointments');
+        const data      = await response.json();
         setAppointments(data);
       } catch (error) {
         console.error('Erro ao buscar agendamentos:', error);
@@ -56,9 +56,9 @@ export default function AppointmentsScreen() {
   }, []);
 
   const getDaysInMonth = (date: Date) => {
-    const year = date.getFullYear();
+    const year  = date.getFullYear();
     const month = date.getMonth();
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const daysInMonth     = new Date(year, month + 1, 0).getDate();
     const firstDayOfMonth = new Date(year, month, 1).getDay();
     const days: { day: string; date: string | null; isToday?: boolean }[] = [];
 
@@ -69,8 +69,8 @@ export default function AppointmentsScreen() {
 
     // Preenche os dias do mês
     for (let i = 1; i <= daysInMonth; i++) {
-      const monthStr = String(month + 1).padStart(2, '0');
-      const dayStr = String(i).padStart(2, '0');
+      const monthStr  = String(month + 1).padStart(2, '0');
+      const dayStr    = String(i).padStart(2, '0');
       const currentDateISO = `${year}-${monthStr}-${dayStr}`;
       days.push({
         day: i.toString(),
