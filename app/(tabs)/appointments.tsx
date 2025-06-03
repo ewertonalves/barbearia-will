@@ -1,248 +1,26 @@
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { Icon } from 'react-native-elements';
 
 interface Service {
-  id: string;
-  clientName: string;
-  service: string;
-  value: number;
+  id:           string;
+  clientName:   string;
+  service:      string;
+  value:        number;
   professional: string;
-  time: string;
-  date: string; // Formato YYYY-MM-DD
+  time:         string;
+  date:         string; // Formato YYYY-MM-DD
 }
-
-// Seus dados de SERVICES permanecem os mesmos
-const SERVICES: Service[] = [
-  {
-    id: '1',
-    clientName: 'João Silva',
-    service: 'Corte de Cabelo',
-    value: 30,
-    professional: 'Willian',
-    time: '10:00',
-    date: '2024-03-15',
-  },
-  {
-    id: '2',
-    clientName: 'Maria Souza',
-    service: 'Barba',
-    value: 20,
-    professional: 'Abner',
-    time: '11:00',
-    date: '2024-03-15',
-  },
-  {
-    id: '3',
-    clientName: 'Carlos Lima',
-    service: 'Corte + Barba',
-    value: 45,
-    professional: 'Abner',
-    time: '12:00',
-    date: '2024-03-16',
-  },
-  {
-    id: '4',
-    clientName: 'Ana Paula',
-    service: 'Corte Feminino',
-    value: 50,
-    professional: 'Willian',
-    time: '14:00',
-    date: '2024-03-16',
-  },
-  {
-    id: '5',
-    clientName: 'Pedro Santos',
-    service: 'Barba',
-    value: 20,
-    professional: 'Abner',
-    time: '15:00',
-    date: '2024-03-16',
-  },
-  {
-    id: '6',
-    clientName: 'Lucas Rocha',
-    service: 'Corte de Cabelo',
-    value: 30,
-    professional: 'Willian',
-    time: '16:00',
-    date: '2024-03-18',
-  },
-  {
-    id: '7',
-    clientName: 'Fernanda Dias',
-    service: 'Corte + Barba',
-    value: 45,
-    professional: 'Abner',
-    time: '17:00',
-    date: '2024-03-18',
-  },
-  {
-    id: '8',
-    clientName: 'Rafael Costa',
-    service: 'Barba',
-    value: 20,
-    professional: 'Willian',
-    time: '18:00',
-    date: '2024-03-18',
-  },
-  {
-    id: '9',
-    clientName: 'Juliana Alves',
-    service: 'Corte Feminino',
-    value: 50,
-    professional: 'Abner',
-    time: '10:00',
-    date: '2024-03-20',
-  },
-  {
-    id: '10',
-    clientName: 'Bruno Martins',
-    service: 'Corte de Cabelo',
-    value: 30,
-    professional: 'Willian',
-    time: '11:00',
-    date: '2024-03-20',
-  },
-  {
-    id: '11',
-    clientName: 'Amanda Souza',
-    service: 'Corte de Cabelo',
-    value: 30,
-    professional: 'Abner',
-    time: '14:00',
-    date: '2024-03-22',
-  },
-  {
-    id: '12',
-    clientName: 'Tiago Lima',
-    service: 'Barba',
-    value: 20,
-    professional: 'Willian',
-    time: '15:00',
-    date: '2024-03-22',
-  },
-  {
-    id: '13',
-    clientName: 'Patrícia Gomes',
-    service: 'Corte + Barba',
-    value: 45,
-    professional: 'Abner',
-    time: '16:00',
-    date: '2024-03-22',
-  },
-  {
-    id: '14',
-    clientName: 'Eduardo Silva',
-    service: 'Corte de Cabelo',
-    value: 30,
-    professional: 'Willian',
-    time: '17:00',
-    date: '2024-03-25',
-  },
-  {
-    id: '15',
-    clientName: 'Marina Rocha',
-    service: 'Corte Feminino',
-    value: 50,
-    professional: 'Abner',
-    time: '18:00',
-    date: '2024-03-25',
-  },
-  {
-    id: '16',
-    clientName: 'Fábio Dias',
-    service: 'Barba',
-    value: 20,
-    professional: 'Willian',
-    time: '10:00',
-    date: '2024-03-27',
-  },
-  {
-    id: '17',
-    clientName: 'Gabriela Costa',
-    service: 'Corte de Cabelo',
-    value: 30,
-    professional: 'Abner',
-    time: '11:00',
-    date: '2024-03-27',
-  },
-  {
-    id: '18',
-    clientName: 'Rodrigo Alves',
-    service: 'Corte + Barba',
-    value: 45,
-    professional: 'Willian',
-    time: '14:00',
-    date: '2024-03-27',
-  },
-  {
-    id: '19',
-    clientName: 'Beatriz Martins',
-    service: 'Corte Feminino',
-    value: 50,
-    professional: 'Abner',
-    time: '15:00',
-    date: '2024-03-29',
-  },
-  {
-    id: '20',
-    clientName: 'Vinícius Souza',
-    service: 'Barba',
-    value: 20,
-    professional: 'Willian',
-    time: '16:00',
-    date: '2024-03-29',
-  },
-  {
-    id: '21',
-    clientName: 'Letícia Lima',
-    service: 'Corte de Cabelo',
-    value: 30,
-    professional: 'Abner',
-    time: '17:00',
-    date: '2024-03-29',
-  },
-  {
-    id: '22',
-    clientName: 'André Gomes',
-    service: 'Corte + Barba',
-    value: 45,
-    professional: 'Willian',
-    time: '18:00',
-    date: '2024-03-29',
-  },
-  // Adicionando serviços para a data atual (Maio de 2025) para teste
-  {
-    id: '29',
-    clientName: 'Cliente Teste Dia Atual',
-    service: 'Teste Serviço',
-    value: 10,
-    professional: 'Tester',
-    time: '09:00',
-    date: '2025-05-12', // Data atual (quando esta resposta foi gerada)
-  },
-  {
-    id: '30',
-    clientName: 'Outro Cliente Teste',
-    service: 'Outro Teste',
-    value: 15,
-    professional: 'Tester',
-    time: '10:00',
-    date: '2025-05-13',
-  }
-];
-
-
-const WEEKDAYS = ['DOM', 'SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SAB'];
 
 // Função para formatar data para YYYY-MM-DD
 function formatDateToISO(date: Date): string {
-  const year = date.getFullYear();
+  const year  = date.getFullYear();
   const month = String(date.getMonth() + 1).padStart(2, '0');
-  const day = String(date.getDate()).padStart(2, '0');
+  const day   = String(date.getDate()).padStart(2, '0');
   return `${year}-${month}-${day}`;
 }
+
+const WEEKDAYS = ['DOM', 'SEG', 'TER', 'QUA', 'QUI', 'SEX', 'SAB'];
 
 function formatDateBR(dateStr: string | null) {
   if (!dateStr) return '';
@@ -251,7 +29,8 @@ function formatDateBR(dateStr: string | null) {
 }
 
 export default function AppointmentsScreen() {
-  // selectedDate já é inicializado com a data atual, o que é correto.
+  const [appointments, setAppointments] = useState<Service[]>([]);
+  const [loading, setLoading] = useState(true);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedServices, setSelectedServices] = useState<Service[]>([]);
@@ -260,11 +39,26 @@ export default function AppointmentsScreen() {
   // Obtém a data de hoje formatada para comparação, usando useMemo para otimização
   const todayISO = useMemo(() => formatDateToISO(new Date()), []);
 
+  useEffect(() => {
+    const fetchAppointments = async () => {
+      try {
+        const response  = await fetch('http://localhost:8080/webhook/appointments');
+        const data      = await response.json();
+        setAppointments(data);
+      } catch (error) {
+        console.error('Erro ao buscar agendamentos:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchAppointments();
+  }, []);
+
   const getDaysInMonth = (date: Date) => {
-    const year = date.getFullYear();
+    const year  = date.getFullYear();
     const month = date.getMonth();
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
-    // getDay() retorna 0 para Domingo, 1 para Segunda, ..., 6 para Sábado
+    const daysInMonth     = new Date(year, month + 1, 0).getDate();
     const firstDayOfMonth = new Date(year, month, 1).getDay();
     const days: { day: string; date: string | null; isToday?: boolean }[] = [];
 
@@ -275,8 +69,8 @@ export default function AppointmentsScreen() {
 
     // Preenche os dias do mês
     for (let i = 1; i <= daysInMonth; i++) {
-      const monthStr = String(month + 1).padStart(2, '0');
-      const dayStr = String(i).padStart(2, '0');
+      const monthStr  = String(month + 1).padStart(2, '0');
+      const dayStr    = String(i).padStart(2, '0');
       const currentDateISO = `${year}-${monthStr}-${dayStr}`;
       days.push({
         day: i.toString(),
@@ -289,7 +83,7 @@ export default function AppointmentsScreen() {
 
   const handleDayPress = (date: string | null) => {
     if (!date) return;
-    const servicesForDay = SERVICES.filter(s => s.date === date);
+    const servicesForDay = appointments.filter(s => s.date === date);
     setSelectedServices(servicesForDay);
     setSelectedDay(date);
     setModalVisible(true);
@@ -338,16 +132,14 @@ export default function AppointmentsScreen() {
 
         <View style={styles.daysContainer}>
           {days.map((dayObj, idx) => {
-            const hasService = !!dayObj.date && SERVICES.some(s => s.date === dayObj.date);
+            const hasService = !!dayObj.date && appointments.some(s => s.date === dayObj.date);
             return (
               <TouchableOpacity
                 key={idx}
                 style={[
                   styles.dayCell,
                   dayObj.date && styles.dayCellWithDate,
-                  dayObj.isToday && styles.currentDayCell, // Estilo para o dia atual
-                  // Removido hasService && styles.dayCellWithService para não sobrescrever o currentDayCell
-                  // O ponto laranja já indica serviço
+                  dayObj.isToday && styles.currentDayCell,
                 ]}
                 onPress={() => handleDayPress(dayObj.date)}
                 disabled={!dayObj.date}
@@ -357,8 +149,7 @@ export default function AppointmentsScreen() {
                 <Text style={[
                   styles.dayText,
                   dayObj.date && styles.dayTextWithDate,
-                  dayObj.isToday && styles.currentDayText, // Estilo para o texto do dia atual
-                  // hasService && styles.dayTextWithService, // Pode ser combinado ou removido
+                  dayObj.isToday && styles.currentDayText,
                   !dayObj.date && { color: 'transparent' }
                 ]}>
                   {dayObj.day}
@@ -460,19 +251,19 @@ const styles = StyleSheet.create({
   weekdayText: {
     color: '#A0A4B8',
     fontSize: 12,
-    width: '14.28%', // Garante 7 colunas
+    width: '14.28%',
     textAlign: 'center'
   },
   daysContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    justifyContent: 'flex-start', // Para alinhar corretamente as células
+    justifyContent: 'flex-start',
   },
   dayCell: {
-    width: `${100 / 7 - 2}%`, // Ajuste para caber 7 colunas com pequena margem
+    width: `${100 / 7 - 2}%`,
     aspectRatio: 1,
-    marginHorizontal: '1%', // Pequena margem horizontal
-    marginVertical: 4, // Pequena margem vertical
+    marginHorizontal: '1%',
+    marginVertical: 4,
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -480,13 +271,10 @@ const styles = StyleSheet.create({
     backgroundColor: '#31384A',
     borderRadius: 8
   },
-  currentDayCell: { // Novo estilo para o dia atual
-    backgroundColor: '#FFA726', // Uma cor de destaque, por exemplo laranja
+  currentDayCell: {
+    backgroundColor: '#FFA726',
     borderRadius: 8,
   },
-  // dayCellWithService: { // Pode ser removido se o ponto laranja for suficiente
-  //   backgroundColor: '#31384A' 
-  // },
   dayText: {
     color: '#A0A4B8',
     fontSize: 14
@@ -494,13 +282,10 @@ const styles = StyleSheet.create({
   dayTextWithDate: {
     color: '#fff'
   },
-  currentDayText: { // Novo estilo para o texto do dia atual
-    color: '#000', // Cor de texto que contrasta com o fundo do dia atual
+  currentDayText: { 
+    color: '#000',
     fontWeight: 'bold',
   },
-  // dayTextWithService: { // Pode ser combinado ou ajustado
-  //   fontWeight: 'bold' 
-  // },
   orangeDot: {
     position: 'absolute',
     top: 4,
