@@ -374,7 +374,12 @@ export default function AppointmentsScreen() {
   return (
     <View style={styles.container}>
       <Text style={styles.thanks}>AGENDA</Text>
-      {renderCalendar()}
+      <ScrollView
+        contentContainerStyle={{ paddingBottom: 24 }}
+        showsVerticalScrollIndicator={false}
+      >
+        {renderCalendar()}
+      </ScrollView>
       <Modal
         animationType="slide"
         transparent

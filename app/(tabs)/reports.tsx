@@ -1,6 +1,8 @@
 import React, { useContext, useState } from 'react';
-import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { FlatList, StyleSheet, Text, TouchableOpacity, View, ScrollView } from 'react-native';
 import { BillingContext } from '../_layout';
+import { UserContext } from '../_layout';
+import { useRouter } from 'expo-router';
 
 const FILTERS = [
   { key: 'daily',   label: 'Diário' },
@@ -11,43 +13,56 @@ const FILTERS = [
 export default function ReportsScreen() {
   const [selected, setSelected] = useState<'daily' | 'weekly' | 'monthly'>('daily');
   const { billingData } = useContext(BillingContext);
+  const { username } = useContext(UserContext);
+  const router = useRouter();
+
+  if (username !== 'Willian') {
+    router.replace('../index');
+    return null;
+  }
+
   const report = billingData[selected];
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>RELATÓRIO DE FATURAMENTO</Text>
-      <View style={styles.filtersRow}>
-        {FILTERS.map(f => (
-          <TouchableOpacity
-            key={f.key}
-            style={[styles.filterBtn, selected === f.key && styles.filterBtnActive]}
-            onPress={() => setSelected(f.key as any)}
-          >
-            <Text style={[styles.filterText, selected === f.key && styles.filterTextActive]}>{f.label}</Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-      <View style={styles.valueBox}>
-        <Text style={styles.valueLabel}>Valor alcançado</Text>
-        <Text style={styles.value}>R$ {report.value.toFixed(2)}</Text>
-      </View>
-      <View style={styles.countBox}>
-        <Text style={styles.countLabel}>Serviços realizados</Text>
-        <Text style={styles.count}>{report.services.length}</Text>
-      </View>
-      <Text style={styles.listTitle}>Lista de serviços realizados</Text>
-      <FlatList
-        data={report.services}
-        keyExtractor={(_, idx) => String(idx)}
-        style={styles.list}
+      <ScrollView
         contentContainerStyle={{ paddingBottom: 24 }}
-        renderItem={({ item }) => (
-          <View style={styles.clientRow}>
-            <Text style={styles.clientService}>{item.service}</Text>
-            <Text style={styles.clientValue}>R$ {item.value.toFixed(2)}</Text>
-          </View>
-        )}
-      />
+        showsVerticalScrollIndicator={false}
+      >
+        <Text style={styles.title}>RELATÓRIO DE FATURAMENTO</Text>
+        <View style={styles.filtersRow}>
+          {FILTERS.map(f => (
+            <TouchableOpacity
+              key={f.key}
+              style={[styles.filterBtn, selected === f.key && styles.filterBtnActive]}
+              onPress={() => setSelected(f.key as any)}
+            >
+              <Text style={[styles.filterText, selected === f.key && styles.filterTextActive]}>{f.label}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+        <View style={styles.valueBox}>
+          <Text style={styles.valueLabel}>Valor alcançado</Text>
+          <Text style={styles.value}>R$ {report.value.toFixed(2)}</Text>
+        </View>
+        <View style={styles.countBox}>
+          <Text style={styles.countLabel}>Serviços realizados</Text>
+          <Text style={styles.count}>{report.services.length}</Text>
+        </View>
+        <Text style={styles.listTitle}>Lista de serviços realizados</Text>
+        <FlatList
+          data={report.services}
+          keyExtractor={(_, idx) => String(idx)}
+          style={styles.list}
+          contentContainerStyle={{ paddingBottom: 24 }}
+          renderItem={({ item }) => (
+            <View style={styles.clientRow}>
+              <Text style={styles.clientService}>{item.service}</Text>
+              <Text style={styles.clientValue}>R$ {item.value.toFixed(2)}</Text>
+            </View>
+          )}
+        />
+      </ScrollView>
     </View>
   );
 }

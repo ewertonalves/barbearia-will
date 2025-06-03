@@ -10,9 +10,8 @@ export default function LoginScreen() {
   const userCtx = useContext(UserContext);
 
   const handleLogin = () => {
-    // Salva o nome do usuário no contexto global
-    userCtx.setUsername(username);
-    // TODO: Implementar autenticação real
+    const normalized = username.trim().charAt(0).toUpperCase() + username.trim().slice(1).toLowerCase();
+    userCtx.setUsername(normalized);
     router.replace('/(tabs)');
   };
 
@@ -27,8 +26,6 @@ export default function LoginScreen() {
             resizeMode = "contain"
           />
         </View>
-        {/* <Text style={styles.title}>BARBEARIA</Text>
-        <Text style={styles.title}>Will - Estilos</Text> */}
       </View>
       <View style = {styles.formContainer}>
         <View style = {styles.inputWrapper}>
@@ -40,7 +37,7 @@ export default function LoginScreen() {
             style = {styles.inputIcon} />
           <TextInput
             style                = {styles.input}
-            placeholder          = "e-mail"
+            placeholder          = "Usuário"
             placeholderTextColor = "#A0A4B8"
             value                = {username}
             onChangeText         = {setUsername}
@@ -55,7 +52,7 @@ export default function LoginScreen() {
             style = {styles.inputIcon} />
           <TextInput
             style                = {styles.input}
-            placeholder          = "senha"
+            placeholder          = "Senha"
             placeholderTextColor = "#A0A4B8"
             secureTextEntry
             value                = {password}

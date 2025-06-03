@@ -1,6 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { BillingContext } from '../_layout';
+import { UserContext } from '../_layout';
 
 interface Appointment {
   id:           string;
@@ -14,6 +15,7 @@ interface Appointment {
 }
 
 export default function HomeScreen() {
+  const { username } = useContext(UserContext);
   const [appointments, setAppointments] = useState<Appointment[]>([
     {
       id: '1',
@@ -65,7 +67,10 @@ export default function HomeScreen() {
   return (
     <View style = {styles.container}>
       <Text style = {styles.header}>AGENDAMENTOS DO DIA</Text>
-      <ScrollView style = {styles.list}>
+      <ScrollView
+        contentContainerStyle={{ paddingBottom: 24 }}
+        showsVerticalScrollIndicator={false}
+      >
         {appointments.map(appointment => (
           <View key = {appointment.id} style={[styles.card, appointment.completed && styles.completed, appointment.blocked && styles.blocked]}>
             <View style = {styles.info}>
@@ -75,19 +80,14 @@ export default function HomeScreen() {
               <Text style = {styles.detail}>Valor: R$ {appointment.value.toFixed(2)}</Text>
             </View>
             <View style = {styles.actions}>
-              {!appointment.completed && !appointment.blocked && (
+              {!appointment.completed && !appointment.blocked && appointment.professional === username && (
                 <TouchableOpacity style = {styles.actionButton} onPress = {() => handleComplete(appointment.id)}>
                   <Text style = {styles.actionText}>Finalizar</Text>
                 </TouchableOpacity>
               )}
-              {!appointment.completed && !appointment.blocked && (
+              {!appointment.completed && !appointment.blocked && appointment.professional === username && (
                 <TouchableOpacity style = {[styles.actionButton, { backgroundColor: '#e74c3c' }]} onPress = {() => handleCancel(appointment.id)}>
                   <Text style = {styles.actionText}>Cancelar</Text>
-                </TouchableOpacity>
-              )}
-              {!appointment.completed && (
-                <TouchableOpacity style = {[styles.actionButton, { backgroundColor: '#888' }]} onPress = {() => handleBlock(appointment.id)}>
-                  <Text style = {styles.actionText}>{appointment.blocked ? 'Desbloquear' : 'Bloquear'}</Text>
                 </TouchableOpacity>
               )}
               {appointment.completed && <Text style = {styles.completedText}>Atendido</Text>}
